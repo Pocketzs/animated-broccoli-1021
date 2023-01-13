@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  resources :doctors, only: [:show]
+  resources :doctors, only: [:show] do
+    resources :patients, only: [:destroy], controller: 'doctor_patients'
+  end
 end

@@ -57,6 +57,52 @@ RSpec.describe 'doctor show page' do
         expect(page).to_not have_content(@patient2a.name)
         expect(page).to_not have_content(@patient2b.name)
       end
+      # User Story 2, Remove a Patient from a Doctor
+      # ​
+      # As a visitor
+      # When I visit a Doctor's show page
+      # Then next to each patient's name, I see a button to remove that patient from that doctor's caseload
+      # When I click that button for one patient
+      # I'm brought back to the Doctor's show page
+      # And I no longer see that patient's name listed
+      # And when I visit a different doctor's show page that is caring for the same patient,
+
+      it "Then next to each patient's name, I see a button to remove that patient from that doctor's caseload" do
+        visit doctor_path(@doctor1)
+        within "#patient-#{@patient1a.id}" do
+          expect(page).to have_button("Remove #{@patient1a.name}")
+        end
+        within "#patient-#{@patient1b.id}" do
+          expect(page).to have_button("Remove #{@patient1b.name}")
+        end
+      end
+
+      describe "When I click that button for one patient" do
+        before :each do
+          visit doctor_path(@doctor1)
+          within "#patient-#{@patient1a.id}" do
+            click_button("Remove #{@patient1a.name}")
+          end
+        end
+        it "I'm brought back to the Doctor's show page" do
+          expect(current_path).to eq(doctor_path(@doctor1))
+        end
+
+        it "And I no longer see that patient's name listed" do
+          expect(page).to_not have_content(@patient1a.name)
+        end
+
+        describe "And when I visit a different doctor's show page that is caring for the same patient," do
+          it "Then I see that the patient is still on the other doctor's caseload" do
+            doctor3 = @hospital.doctors.create!(name: "Jack Howard", specialty: 'Love', university: 'Da Streets')
+            doctor3.patients << @patient1a
+
+            visit doctor_path(doctor3)
+
+            expect(page).to have_content(@patient1a.name)
+          end
+        end
+      end
     end
   end
 end
